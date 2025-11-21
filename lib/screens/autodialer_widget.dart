@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
+import 'package:nexuscrm/auth/controller/auth_controller.dart';
+import 'package:nexuscrm/config/menu.dart';
 import 'package:nexuscrm/controller/autoCall-controller.dart';
+import 'package:nexuscrm/widgets/kAppBar.dart';
+import 'package:nexuscrm/widgets/kDrawer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:phone_state/phone_state.dart';
 
@@ -17,19 +21,6 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
   );
   late AutoCallController controller;
 
-  // final List<Map<String, dynamic>> numbers = [
-  //   {'number': '6378603443', 'name': 'Shyam', 'isInterested': false},
-  //   {'number': '9828271115', 'name': 'Amit', 'isInterested': false},
-  //   {'number': '8929072576', 'name': 'Rohit', 'isInterested': false},
-  //   {'number': '7689038247', 'name': 'Pooja', 'isInterested': false},
-  //   {'number': '9893666707', 'name': 'Suman', 'isInterested': false},
-  //   {'number': '6367686257', 'name': 'Alok', 'isInterested': false},
-  //   {'number': '9521399708', 'name': 'Priya', 'isInterested': false},
-  //   {'number': '7357842170', 'name': 'Ravi', 'isInterested': false},
-  //   // Add more as needed
-  // ];
-  // List<Map<String,dynamic>> numbers=[];
-
   bool isLoading = true;
   bool callInProgress = false;
   List<String> statuses = [];
@@ -42,6 +33,12 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
   List<String> dropdownItems = ['Vrindavan', 'Radhe Krishna', 'Jaipur '];
   String selectedOption = 'Vrindavan';
   bool isInterested = false;
+
+  final AuthContoller authController = Get.find();
+  //getting role
+  late final String? role = authController.role;
+
+  late final menu =roleMenus[role]??[];
 
   @override
   void initState() {
@@ -286,6 +283,8 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: KAppBar(title: role?? " ",),
+      drawer: KDrawer(menuItems: menu,),
       body: Padding(
         padding: const EdgeInsets.all(14.0),
         child: Column(
@@ -422,6 +421,8 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                     );
                   },
                 );
+
+
               }),
             ),
           ],

@@ -3,47 +3,37 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:nexuscrm/auth/controller/auth_controller.dart';
 import 'package:nexuscrm/config/menu.dart';
-import 'package:nexuscrm/screens/pages/timesheet/admin_time_sheet.dart';
-import 'package:nexuscrm/screens/pages/timesheet/staff_time_sheet.dart';
+import 'package:nexuscrm/screens/pages/incentive/admin_incentive.dart';
+import 'package:nexuscrm/screens/pages/incentive/staff_incentive.dart';
 import 'package:nexuscrm/widgets/kAppBar.dart';
 import 'package:nexuscrm/widgets/kDrawer.dart';
 
-class TimesheetScreen extends StatefulWidget {
-  const TimesheetScreen({Key? key}) : super(key: key);
-
-  @override
-  State<TimesheetScreen> createState() => _TimesheetScreenState();
-}
-
-class _TimesheetScreenState extends State<TimesheetScreen> {
-
+class IncentiveWidget extends StatelessWidget {
+  IncentiveWidget({Key? key}) : super(key: key);
 
   final AuthContoller authController = Get.find();
   //getting role
   late final String? role = authController.role;
 
   late final menu =roleMenus[role]??[];
-
-  @override
   Widget build(BuildContext context) {
     Widget body;
 
     switch (role) {
       case "admin":
-        body = AdminTimeSheet();
+        body = AdminIncentive();
         break;
       case "staff":
-        body = StaffTimeSheet();
+        body = StaffIncentive();
         break;
       default:
         body = Center(child: Text('Unknown Role'));
 
     }
-    return Scaffold(
-      appBar:KAppBar(title: role?? " ",),
-      drawer: KDrawer(menuItems: menu,),
+        return Scaffold(
+      appBar: KAppBar(title: role?? " ",),
+            drawer: KDrawer(menuItems: menu,),
       body: body
     );
   }
-
 }

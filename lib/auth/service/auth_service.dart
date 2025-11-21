@@ -24,6 +24,10 @@ class AuthService extends GetxService{
           )
 
       );
+      print(response.statusCode);
+      if (response.statusCode != 200) {
+        print('API error response: ${response.body}');
+      }
       if(response.statusCode==200){
         final body= jsonDecode(response.body);
         print(body);

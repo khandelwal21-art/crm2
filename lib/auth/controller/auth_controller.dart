@@ -11,18 +11,27 @@ class AuthContoller extends GetxController{
 
   var user = Rxn<UserModel>();
 
-  Future<void> login()async{
-
-      final result= await authService.loginApi(emailController.text, passwordController.text);
-      if(result!=null){
-         user.value=result;
+  Future<void> login()async {
+    try {
+      final result = await authService.loginApi(
+           emailController.text, passwordController.text);
+      if (result != null) {
+        user.value = result;
         Get.toNamed("/dashboard");
       }
-      else{
-        print('Login failed—show error');
-
+      else {
+        print('Login failed—show error ');
       }
+    } catch (error) {
+      // Show exception error, e.g. network/server error
+      Get.snackbar(
+        "Error",
+        error.toString(),
+        backgroundColor: Get.theme.colorScheme.errorContainer,
+        colorText: Get.theme.colorScheme.onErrorContainer,
+      );
     }
+  }
 
     String? get role=>user.value?.primaryRole;
   }

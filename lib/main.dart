@@ -4,6 +4,7 @@ import 'package:nexuscrm/auth/bindings/auth_bindings.dart';
 import 'package:nexuscrm/auth/screens/login_screen.dart';
 import 'package:nexuscrm/bindings/autoCall_bindings.dart';
 import 'package:nexuscrm/controller/myDrawer.dart';
+import 'package:nexuscrm/screens/Incentive_widget.dart';
 import 'package:nexuscrm/screens/autodialer_widget.dart';
 import 'package:nexuscrm/screens/dash_screen.dart';
 import 'package:nexuscrm/screens/timeSheet_screen.dart';
@@ -47,6 +48,10 @@ class MyApp extends StatelessWidget {
           name: '/autodialer',
           page: () => AutoDialerWidget(),
           binding: AutoCallBindings(),
+        ),
+        GetPage(
+          name: '/incentives',
+          page: () => IncentiveWidget(),
         ),
         // ...other routes
       ],

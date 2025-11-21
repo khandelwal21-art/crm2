@@ -46,6 +46,8 @@ final Map<String, List<Map<String, dynamic>>> roleMenus = {
     {'title': 'Dashboard', 'icon': Icons.dashboard, 'route': '/dashboard'},
     {'title': 'Productivity', 'icon': Icons.bar_chart_outlined, 'route': '/productivity'},
     {'title': 'Incentives', 'icon': Icons.monetization_on_outlined, 'route': '/incentives'},
+    {'title': 'Auto Dialer', 'icon': Icons.phone_android, 'route': '/autodialer'},
+
     {'title': 'Leads Report', 'icon': Icons.assignment_outlined,
       'children': [
         {'title': 'Auto Call', 'route': '/leads/autocall'},
