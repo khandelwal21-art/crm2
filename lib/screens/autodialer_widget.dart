@@ -34,7 +34,7 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
   String selectedOption = 'Vrindavan';
   bool isInterested = false;
 
-  final AuthContoller authController = Get.find();
+  final AuthController authController = Get.find();
   //getting role
   late final String? role = authController.role;
 

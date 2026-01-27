@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:nexuscrm/auth/bindings/auth_bindings.dart';
 import 'package:nexuscrm/auth/screens/login_screen.dart';
 import 'package:nexuscrm/bindings/autoCall_bindings.dart';
+import 'package:nexuscrm/bindings/leave_bindings.dart';
+import 'package:nexuscrm/bindings/mark_attendance_bindings.dart';
 import 'package:nexuscrm/controller/myDrawer.dart';
-import 'package:nexuscrm/screens/Incentive_widget.dart';
+import 'package:nexuscrm/screens/attendance_history_screen.dart';
 import 'package:nexuscrm/screens/autodialer_widget.dart';
+import 'package:nexuscrm/screens/attendance_mark_screen.dart';
 import 'package:nexuscrm/screens/dash_screen.dart';
-import 'package:nexuscrm/screens/timeSheet_screen.dart';
+import 'package:nexuscrm/screens/leave_screen.dart';
 
-void main() {
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
   Get.put(MyDrawer());
   runApp(MyApp());
 }
@@ -40,8 +46,21 @@ class MyApp extends StatelessWidget {
           // No binding—just the view
         ),
         GetPage(
-          name: '/timesheet',
-          page: () => TimesheetScreen(),
+          name: '/mark-attendance',
+          page: () => DashboardScreens(),
+          binding: MarkAttendanceBindings(),
+
+          // No binding—just the view
+        ),
+        GetPage(
+          name: '/attendance-history',
+          page: () => AttendanceHistoryScreen(),
+          // No binding—just the view
+        ),
+        GetPage(
+          name: '/leave-screen',
+          page: () => LeaveScreen(),
+          binding: LeaveBindings()
           // No binding—just the view
         ),
         GetPage(
@@ -49,10 +68,7 @@ class MyApp extends StatelessWidget {
           page: () => AutoDialerWidget(),
           binding: AutoCallBindings(),
         ),
-        GetPage(
-          name: '/incentives',
-          page: () => IncentiveWidget(),
-        ),
+
         // ...other routes
       ],
     );

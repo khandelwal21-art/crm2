@@ -8,7 +8,7 @@ class AuthBindings extends Bindings{
   void dependencies() {
     //service
     Get.lazyPut<AuthService>(()=>AuthService());
-    Get.lazyPut<AuthContoller>(()=>AuthContoller());
+    Get.lazyPut<AuthController>(()=>AuthController());
 
   }
 

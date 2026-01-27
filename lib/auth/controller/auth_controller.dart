@@ -1,40 +1,70 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:nexuscrm/auth/service/auth_service.dart';
 import 'package:nexuscrm/models/user_model.dart';
 
-class AuthContoller extends GetxController{
+class AuthController extends GetxController{
 
   final AuthService authService =Get.find();
+  final formKey = GlobalKey<FormState>();
+  var isLoading=false.obs;
+  final storage = GetStorage();
   final TextEditingController emailController=TextEditingController();
   final TextEditingController passwordController=TextEditingController();
 
   var user = Rxn<UserModel>();
 
-  Future<void> login()async {
+  Future<void> login() async {
+    isLoading.value=true;
     try {
-      final result = await authService.loginApi(
-           emailController.text, passwordController.text);
+      final email = emailController.text.trim();
+      final password = passwordController.text.trim();
+
+      final result = await authService.login(email, password);
+
       if (result != null) {
+        //  Save user
         user.value = result;
-        Get.toNamed("/dashboard");
-      }
-      else {
-        print('Login failed—show error ');
+        //  Save token
+        storage.write('token', result.token);
+        //  Navigate to dashboard
+
+
+// ✅ Navigate FIRST
+        // Navigate immediately
+        Get.offNamed('/dashboard');
+
+        // Use Toast instead of Snackbar
+        Fluttertoast.showToast(
+          msg: "Logged in successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.black87,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+
+      } else {
+        Fluttertoast.showToast(
+          msg: "Login Failed",
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
       }
     } catch (error) {
-      // Show exception error, e.g. network/server error
-      Get.snackbar(
-        "Error",
-        error.toString(),
-        backgroundColor: Get.theme.colorScheme.errorContainer,
-        colorText: Get.theme.colorScheme.onErrorContainer,
+      Fluttertoast.showToast(
+        msg: "Error: ${error.toString()}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     }
   }
 
-    String? get role=>user.value?.primaryRole;
-  }
+  String? get role=>user.value?.primaryRole;
+}
 
 
 

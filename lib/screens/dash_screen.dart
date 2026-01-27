@@ -10,7 +10,7 @@ import 'package:nexuscrm/widgets/kDrawer.dart';
 class DashScreen extends StatelessWidget {
    DashScreen({super.key});
 
-  final AuthContoller authController = Get.find();
+  final AuthController authController = Get.find();
   //getting role
  late final String? role = authController.role;
 

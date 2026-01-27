@@ -1,26 +1,10 @@
 import 'package:flutter/material.dart';
 
 final Map<String, List<Map<String, dynamic>>> roleMenus = {
-  'admin': [
+  'staff': [
+
+     {'title': 'Mark Attendance', 'icon': Icons.access_time_outlined, 'route': '/mark-attendance'},
     {'title': 'Dashboard', 'icon': Icons.dashboard_outlined, 'route': '/dashboard'},
-    {
-      'title': 'User',
-      'icon': Icons.person_2_outlined,
-      // Represent nested children as a list of maps with 'title' and 'route'
-      'children': [
-        {'title': 'Profile', 'route': '/user/profile'},
-        {'title': 'Settings', 'route': '/user/settings'},
-        {'title': 'Logout', 'route': '/logout'},
-      ],
-    },
-    {
-      'title': 'Productivity',
-      'icon': Icons.bar_chart_outlined,
-      'children': [
-        {'title': 'Report 1', 'route': '/productivity/report1'},
-        {'title': 'Report 2', 'route': '/productivity/report2'},
-      ],
-    },
     {
       'title': 'Leads Report',
       'icon': Icons.assignment_outlined,
@@ -29,20 +13,11 @@ final Map<String, List<Map<String, dynamic>>> roleMenus = {
         {'title': 'Lead 2', 'route': '/leads/lead2'},
       ],
     },
-    {
-      'title': 'Marketing',
-      'icon': Icons.campaign_outlined,
-      'children': [
-        {'title': 'Campaign 1', 'route': '/marketing/campaign1'},
-        {'title': 'Campaign 2', 'route': '/marketing/campaign2'},
-      ],
-    },
-    {'title': 'Time Sheet', 'icon': Icons.access_time_outlined, 'route': '/timesheet'},
-    {'title': 'Project', 'icon': Icons.work_outline, 'route': '/project'},
-    {'title': 'Add Sell', 'icon': Icons.sell_outlined, 'route': '/add_sell'},
+     {'title': 'Attendance History', 'icon': Icons.work_outline, 'route': '/attendance-history'},
+      {'title': 'Leave', 'icon': Icons.sell_outlined, 'route': '/leave-screen'},
   ],
 
-  'staff': [
+  'admin': [
     {'title': 'Dashboard', 'icon': Icons.dashboard, 'route': '/dashboard'},
     {'title': 'Productivity', 'icon': Icons.bar_chart_outlined, 'route': '/productivity'},
     {'title': 'Incentives', 'icon': Icons.monetization_on_outlined, 'route': '/incentives'},
