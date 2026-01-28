@@ -4,7 +4,7 @@
   import 'package:get/get.dart';
   import 'package:get_storage/get_storage.dart';
   import 'package:http/http.dart' as http;
-  import '../models/attandance_model.dart';
+  import '../models/attendance_record.dart';
 
   class MarkAttendanceService  extends GetxService {
     final storage = GetStorage();
@@ -87,7 +87,7 @@
       else {
         print("CHECK IN FAILED");
         print(response.body);
-        return {'success':false,'message':'Checked in failed','data':jsonDecode(response.body)};
+        return {'success':false,'message':response,'data':jsonDecode(response.body)};
       }
     }
 

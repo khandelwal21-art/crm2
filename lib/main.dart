@@ -13,10 +13,15 @@ import 'package:nexuscrm/screens/attendance_mark_screen.dart';
 import 'package:nexuscrm/screens/dash_screen.dart';
 import 'package:nexuscrm/screens/leave_screen.dart';
 
+import 'auth/controller/auth_controller.dart';
+import 'auth/service/auth_service.dart';
+
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-  Get.put(MyDrawer());
+   Get.put(MyDrawer());
+  Get.put(AuthService(), permanent: true);
+  Get.put(AuthController(), permanent: true);
   runApp(MyApp());
 }
 
@@ -27,7 +32,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Nexus CRM',
+      title: 'CRM',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),

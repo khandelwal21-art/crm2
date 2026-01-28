@@ -1,14 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../models/attandance_model.dart';
+import '../models/attendance_record.dart';
 import '../services/mark_attendance_service.dart';
 
 class MarkAttendanceController extends GetxController
 {
   final MarkAttendanceService _locationService = Get.find();
-  // final AttendanceService _attendanceService = AttendanceService();
   /// Reactive state
   var isLoading = false.obs;
   var isCheckedIn = false.obs;
@@ -101,12 +102,12 @@ class MarkAttendanceController extends GetxController
           long: position.longitude,
         );
        if(result['success']==true){
-         Get.snackbar('success', 'You have successfully checked in');
+         Fluttertoast.showToast(msg: "Checked in successfully",backgroundColor: Colors.green,textColor: Colors.white);
          isCheckedIn.value = true;
          await loadAttendance();
        }
        else{
-         Get.snackbar('error', result['data']['error']??'Check in failed');
+         Fluttertoast.showToast(msg: "${result['data']['error']}",backgroundColor: Colors.red,textColor: Colors.white);
          return;
        }
 
@@ -117,11 +118,11 @@ class MarkAttendanceController extends GetxController
 
         );
         loadAttendance();
-        Get.snackbar('success', 'You have successfully checked out');
+        Fluttertoast.showToast(msg: "Checked out successfully",backgroundColor: Colors.green,textColor: Colors.white);
       }
 
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      Fluttertoast.showToast(msg: e.toString(),backgroundColor: Colors.red,textColor: Colors.white);
     } finally {
       isLoading.value = false;
     }

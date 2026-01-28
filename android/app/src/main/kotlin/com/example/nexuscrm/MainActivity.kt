@@ -1,4 +1,4 @@
-package com.example.nexuscrm
+package com.ats.nexuscrm
 
 import android.Manifest
 import android.content.pm.PackageManager

@@ -168,80 +168,114 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
           String dialogSelectedOption = selectedOption;
 
           return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             backgroundColor: Colors.white,
-            shadowColor: Colors.black.withOpacity(0.1),
-
-            // 💡 FIX: Wrap the title Row in a StatefulBuilder to make the Switch functional
-            title: StatefulBuilder(
+            surfaceTintColor: Colors.white,
+            title: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.phone_in_talk, color: Colors.orange, size: 30),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  "Call Details",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
+            content: StatefulBuilder(
               builder: (BuildContext context, StateSetter dialogSetState) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment
-                      .spaceBetween, // Added alignment for better layout
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start, // Added alignment
+                    Divider(),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        controller.numbers[currentIndex]['name'] ?? "Unknown",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(controller.numbers[currentIndex]['number'] ?? ""),
+                      trailing: Switch(
+                        activeColor: Colors.green,
+                        value: dialogIsInterested,
+                        onChanged: (value) {
+                          dialogSetState(() {
+                            dialogIsInterested = value;
+                          });
+                        },
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Text("Interested?", style: TextStyle(color: Colors.grey[600])),
                         Text(
-                          controller.numbers[currentIndex]['number'],
+                          dialogIsInterested ? "YES" : "NO",
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
+                            color: dialogIsInterested ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(controller.numbers[currentIndex]['name']),
                       ],
                     ),
-                    // 💡 FIX: Corrected syntax for the Switch
-                    Switch(
-                      value: dialogIsInterested,
-                      onChanged: (value) {
-                        dialogSetState(() {
-                          dialogIsInterested = value;
-                        });
-                      },
+                    SizedBox(height: 20),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: dialogSelectedOption,
+                          items: dropdownItems.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (String? value) {
+                            dialogSetState(() {
+                              dialogSelectedOption = value!;
+                            });
+                          },
+                        ),
+                      ),
                     ),
                   ],
                 );
               },
             ),
-
-            content: StatefulBuilder(
-              builder: (BuildContext context, StateSetter dialogSetState) {
-                return DropdownButton<String>(
-                  value: dialogSelectedOption,
-                  items: dropdownItems.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? value) {
-                    dialogSetState(() {
-                      dialogSelectedOption = value!;
-                    });
-                  },
-                );
-              },
-            ),
-
             actions: [
-              TextButton(
-                onPressed: () {
-                  // Apply the dialog state back to the main widget's state before closing
-                  setState(() {
-                    controller.numbers[currentIndex]['isInterested'] =
-                        dialogIsInterested;
-                    selectedOption = dialogSelectedOption;
-                  });
-
-                  Navigator.of(context).pop();
-                  dialogShown = false;
-                  if (!callInProgress && isDialing) {
-                    _moveToNextNumber();
-                  }
-                },
-                child: Text('Ok'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      controller.numbers[currentIndex]['isInterested'] = dialogIsInterested;
+                      selectedOption = dialogSelectedOption;
+                    });
+                    Navigator.of(context).pop();
+                    dialogShown = false;
+                    if (!callInProgress && isDialing) {
+                      _moveToNextNumber();
+                    }
+                  },
+                  child: Text('Save & Continue', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
               ),
             ],
           );
@@ -280,152 +314,339 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
     }
   }
 
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Calling':
+        return Colors.orange;
+      case 'Called':
+        return Colors.green;
+      case 'Failed':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status) {
+      case 'Calling':
+        return Icons.ring_volume;
+      case 'Called':
+        return Icons.check_circle_outline;
+      case 'Failed':
+        return Icons.error_outline;
+      default:
+        return Icons.schedule;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: KAppBar(title: role?? " ",),
       drawer: KDrawer(menuItems: menu,),
-      body: Padding(
-        padding: const EdgeInsets.all(14.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isStreamError)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Stream error occurred. Please restart the app.',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Number to call",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+      body: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isStreamError)
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(12),
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red[200]!),
                   ),
-                  const SizedBox(height: 6),
-                  Row(
+                  child: Row(
                     children: [
-                      Icon(
-                        Icons.phone,
-                        color: Colors.deepOrangeAccent,
-                        size: 22,
-                      ),
-                      const SizedBox(width: 12),
-
-                      Text(
-                        (controller.numbers.isEmpty ||
-                                currentIndex >= controller.numbers.length)
-                            ? "-"
-                            : controller.numbers[currentIndex]['number'],
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                      Icon(Icons.error_outline, color: Colors.red),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Stream error occurred. Please restart the app.',
+                          style: TextStyle(color: Colors.red[700], fontWeight: FontWeight.w500),
                         ),
-                      ),
-                      Spacer(),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(isDialing ? "Dialer Running..." : "Idle"),
                       ),
                     ],
                   ),
-                ],
+                ),
+
+              // Active Dialer Card
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.indigo[700]!, Colors.indigo[500]!],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.indigo.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "CURRENT SESSION",
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              isDialing ? "Dialing Active" : "Standby Mode",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: isDialing ? Colors.greenAccent : Colors.orangeAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                isDialing ? "RUNNING" : "IDLE",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 24),
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.phone,
+                              color: Colors.indigo[700],
+                              size: 24,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Phone Number",
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  (controller.numbers.isEmpty ||
+                                          currentIndex >= controller.numbers.length)
+                                      ? "None Scheduled"
+                                      : controller.numbers[currentIndex]['number'],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 15),
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              
+              SizedBox(height: 20),
+              
+              // Action Button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDialing ? Colors.redAccent : Colors.orange[800],
+                    foregroundColor: Colors.white,
+                    elevation: 4,
+                    shadowColor: (isDialing ? Colors.redAccent : Colors.orange).withOpacity(0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: _toggleDialer,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(isDialing ? Icons.stop_rounded : Icons.play_arrow_rounded, size: 28),
+                      SizedBox(width: 8),
+                      Text(
+                        isDialing ? 'STOP DIALER' : 'START AUTO DIALER',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                      ),
+                    ],
                   ),
                 ),
-                onPressed: _toggleDialer,
-                child: Text(
-                  style: TextStyle(fontSize: 17),
-                  isDialing ? 'Stop' : 'Start ',
+              ),
+              
+              SizedBox(height: 24),
+              
+              Text(
+                "UPCOMING CALLS",
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.1,
                 ),
               ),
-            ),
-            SizedBox(height: 15),
+              SizedBox(height: 12),
 
-            Expanded(
-              child: Obx(() {
-                if (controller.numbers.isEmpty) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                // if statuses length mismatch -> rebuild it
-                if (statuses.length != controller.numbers.length) {
-                  statuses = List.filled(controller.numbers.length, 'Idle');
-                }
-                return ListView.builder(
-                  itemCount: controller.numbers.length,
-                  itemBuilder: (context, index) {
-                    //getting status
-                    final status = statuses.length > index
-                        ? statuses[index]
-                        : "Idle";
-
-                    return Card(
-                      elevation: 1,
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.phone,
-                          color: Colors.deepOrangeAccent,
-                          size: 18,
-                        ),
-                        title: Text(
-                          controller.numbers[index]['name'],
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        subtitle: Text(controller.numbers[index]['number']),
-                        trailing: Text(
-                          status,
-                          style: TextStyle(
-                            color: status == "Calling"
-                                ? Colors.orange
-                                : status == "Called"
-                                ? Colors.green
-                                : Colors.black,
-                          ),
-                        ),
+              Expanded(
+                child: Obx(() {
+                  if (controller.numbers.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(color: Colors.indigo),
+                          SizedBox(height: 16),
+                          Text("Fetching leads...", style: TextStyle(color: Colors.grey)),
+                        ],
                       ),
                     );
-                  },
-                );
+                  }
 
-
-              }),
-            ),
-          ],
+                  if (statuses.length != controller.numbers.length) {
+                    statuses = List.filled(controller.numbers.length, 'Idle');
+                  }
+                  
+                  return ListView.separated(
+                    padding: EdgeInsets.only(bottom: 20),
+                    itemCount: controller.numbers.length,
+                    separatorBuilder: (context, index) => SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final status = statuses.length > index ? statuses[index] : "Idle";
+                      final isCurrent = index == currentIndex && isDialing;
+                      
+                      return AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        decoration: BoxDecoration(
+                          color: isCurrent ? Colors.indigo[50] : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isCurrent ? Colors.indigo[200]! : Colors.transparent,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          leading: Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(status).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              _getStatusIcon(status),
+                              color: _getStatusColor(status),
+                              size: 20,
+                            ),
+                          ),
+                          title: Text(
+                            controller.numbers[index]['name'] ?? "Unknown Lead",
+                            style: TextStyle(
+                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
+                              fontSize: 15,
+                              color: isCurrent ? Colors.indigo[900] : Colors.black87,
+                            ),
+                          ),
+                          subtitle: Text(
+                            controller.numbers[index]['number'],
+                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                          ),
+                          trailing: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(status).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              status.toUpperCase(),
+                              style: TextStyle(
+                                color: _getStatusColor(status),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
       ),
     );

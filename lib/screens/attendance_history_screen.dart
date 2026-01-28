@@ -232,7 +232,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
         physics: const NeverScrollableScrollPhysics(),
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 2.2,
+        childAspectRatio: 2,
         children: [
           _statCard("Present",
               "${_trackerSummary?.presentDays ?? 0} Days",

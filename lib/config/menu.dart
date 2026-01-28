@@ -6,12 +6,10 @@ final Map<String, List<Map<String, dynamic>>> roleMenus = {
      {'title': 'Mark Attendance', 'icon': Icons.access_time_outlined, 'route': '/mark-attendance'},
     {'title': 'Dashboard', 'icon': Icons.dashboard_outlined, 'route': '/dashboard'},
     {
-      'title': 'Leads Report',
+      'title': 'Auto dialer',
       'icon': Icons.assignment_outlined,
-      'children': [
-        {'title': 'Auto Call', 'route': '/leads/autocall'},
-        {'title': 'Lead 2', 'route': '/leads/lead2'},
-      ],
+       'route': '/autodialer',
+
     },
      {'title': 'Attendance History', 'icon': Icons.work_outline, 'route': '/attendance-history'},
       {'title': 'Leave', 'icon': Icons.sell_outlined, 'route': '/leave-screen'},

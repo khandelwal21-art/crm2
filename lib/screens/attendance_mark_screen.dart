@@ -18,9 +18,12 @@ class _DashboardScreenState extends State<DashboardScreens> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text('Mark Attendance'),
-        centerTitle: true,
+        backgroundColor: Colors.white,
         elevation: 0,
+        title: const Text(
+          'Mark Attendance',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22),
+        ),
       ),
       body: Obx(() {
         if (controller.isLoading.value &&
@@ -48,11 +51,11 @@ class _DashboardScreenState extends State<DashboardScreens> {
                   //time
                   Text(controller.timeString.value,
                       style: const TextStyle(
-                          fontSize: 48,
+                          fontSize: 35,
                           fontWeight: FontWeight.bold)),
                   //date
                   Text(controller.dateString.value,
-                      style: const TextStyle(color: Colors.black45,fontSize: 20,)),
+                      style: const TextStyle(color: Colors.grey,fontSize: 18,)),
 
                   const SizedBox(height: 30),
 
@@ -80,20 +83,41 @@ class _DashboardScreenState extends State<DashboardScreens> {
                         await controller.toggleCheckInOut();
                       }
                     },
-                    child: CircleAvatar(
-                      radius: 90,
-                      backgroundColor: Colors.teal,
-                      child: controller.isLoading.value
-                          ? const CircularProgressIndicator(
-                          color: Colors.white)
-                          : Text(
-                        controller.isCheckedIn.value
-                            ? "Check Out"
-                            : "Check In",
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold),
+                    child: Container(
+
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(width: 3, color: Colors.white),
+                        boxShadow: [
+                           BoxShadow(
+                          color: Colors.black.withOpacity(.1),
+                          spreadRadius: 4,
+                           blurRadius: 10
+                          )
+                        ]
+
+                      ),
+                      child: CircleAvatar(
+                        radius: 90,
+                        backgroundColor: Colors.teal,
+                        child: controller.isLoading.value
+                            ? const CircularProgressIndicator(
+                            color: Colors.white)
+                            : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                                        controller.isCheckedIn.value
+                                  ? "Check Out"
+                                  : "Check In",
+                                                        style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600),
+                                                      ),
+                                Icon(Icons.touch_app,size: 33,color: Colors.white,)
+                              ],
+                            ),
                       ),
                     ),
                   ),
@@ -154,12 +178,24 @@ class _DashboardScreenState extends State<DashboardScreens> {
                                   Column(
                                     children: [
                                       Text("Date", style: const TextStyle(
-                                          fontSize: 18, fontWeight: FontWeight.bold)),
+                                          fontSize: 16, fontWeight: FontWeight.w500)),
                                       Text(item.date , style: const TextStyle(color: Colors.black54)),
                                     ],
                                   ),
-                                  Text(_formatTime(item.checkIn)),
-                                  Text(_formatTime(item.checkOut) ),
+                                  Column(
+                                    children: [
+                                      Text("Check In", style: const TextStyle(
+                                          fontSize: 16, fontWeight: FontWeight.w500)),
+                                      Text(_formatTime(item.checkIn), style: const TextStyle(color: Colors.black54)),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text("Check Out", style: const TextStyle(
+                                          fontSize: 16, fontWeight: FontWeight.w500)),
+                                      Text(_formatTime(item.checkOut),style: const TextStyle(color: Colors.black54) ),
+                                    ],
+                                  ),
                                 ],
                               ),
                               children: [

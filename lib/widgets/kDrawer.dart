@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nexuscrm/controller/myDrawer.dart';
+import '../auth/controller/auth_controller.dart';
 import 'kListTile.dart';
 
 class KDrawer extends StatelessWidget {
@@ -9,24 +10,25 @@ class KDrawer extends StatelessWidget {
   KDrawer({super.key, required this.menuItems});
 
   final MyDrawer drawerController = Get.find<MyDrawer>();
+  final AuthController authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
       width: 250,
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.black87,
       child: Column(
         children: [
           DrawerHeader(
             child: Row(
-              children: const [
+              children:  [
                 CircleAvatar(
                   backgroundColor: Colors.orange,
-                  child: Icon(Icons.touch_app, color: Colors.white),
+                  child: Text(authController.user.value!.name[0].toUpperCase(),style: TextStyle(color: Colors.white),),
                 ),
                 SizedBox(width: 15),
                 Text(
-                  "Admin@gmail.com",
+                  authController.user.value?.name ?? '',
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ],

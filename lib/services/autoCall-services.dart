@@ -37,6 +37,4 @@ class AutoCallService extends GetxService{
       return [];
     }
   }
-
-
 }
