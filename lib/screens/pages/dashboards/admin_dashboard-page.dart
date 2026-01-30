@@ -1,82 +1,100 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:nexuscrm/controller/dashBoard_controller.dart';
-import 'package:nexuscrm/widgets/kCard.dart';
+import 'package:nexuscrm/widgets/dashboard_stat_card.dart';
+import 'package:nexuscrm/widgets/glass_card.dart';
 import 'package:nexuscrm/widgets/reusableCharts.dart';
+import 'package:nexuscrm/config/theme.dart';
 
 class AdminDashboardPage extends StatelessWidget {
    AdminDashboardPage({super.key});
   final DashBoardController chartController = Get.put(DashBoardController());
 
   final List<Map<String, dynamic>> cardItems = [
-    {'icon': Icons.bar_chart, 'color': Colors.purple, 'title': "Productivity", 'number': "85%"},
-    {'icon': Icons.people, 'color': Colors.blue, 'title': "Staff Management", 'number': "18"},
-    {'icon': Icons.language, 'color': Colors.orange, 'title': "Source", 'number': "100"},
-    {'icon': Icons.card_travel_outlined, 'color': Colors.red, 'title': "Freelancers", 'number': "7"},
+    {'icon': Icons.show_chart_rounded, 'color': Color(0xFF9C27B0), 'title': "Productivity", 'number': "85%"},
+    {'icon': Icons.people_alt_rounded, 'color': Color(0xFF2196F3), 'title': "Staff Mgmt", 'number': "18"},
+    {'icon': Icons.public_rounded, 'color': Color(0xFFFF9800), 'title': "Source", 'number': "100"},
+    {'icon': Icons.work_outline_rounded, 'color': Color(0xFFF44336), 'title': "Freelancers", 'number': "7"},
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundLight,
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: [
-              // cards
-              GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 80 / 50, // card width / card height ratio
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 5
-                ),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: cardItems.length,
-                itemBuilder: (context,index){
-                  final item = cardItems[index];
-                  return Kcard(
-                    icon: item['icon'],
-                    color: item['color'],
-                    title: item['title'],
-                    number: item['number'],
-                  );
-                },
-              ),
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Section
+            Text("Dashboard Overview", style: AppTheme.heading2),
+            const SizedBox(height: 20),
 
-              // productivity chart
-              SizedBox(height: 10,),
-              Card(
-                color: Colors.white,
-                elevation: 5,
-                child: ReusableChart(chartType:ChartType.bar,
-                  title: "Productivity",
-                  data: chartController.getBarChartData(),
-                ),
+            // Stat Cards Grid
+            GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1.3,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16
               ),
-              SizedBox(height: 10,),
-              Card(
-                color: Colors.white,
-                elevation: 5,
-                child: ReusableChart(chartType:ChartType.pie,
-                  title: "Staff Management",
-                  data: chartController.getPieChartData(),
-                ),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: cardItems.length,
+              itemBuilder: (context, index){
+                final item = cardItems[index];
+                return DashboardStatCard(
+                  icon: item['icon'],
+                  iconColor: item['color'],
+                  title: item['title'],
+                  value: item['number'],
+                );
+              },
+            ),
+
+            const SizedBox(height: 24),
+            
+            // Charts Section
+            Text("Analytics", style: AppTheme.heading2.copyWith(fontSize: 20)),
+            const SizedBox(height: 16),
+
+            GlassCard(
+              child: Column(
+                children: [
+                   ReusableChart(chartType:ChartType.bar,
+                    title: "Productivity",
+                    data: chartController.getBarChartData(),
+                  ),
+                ],
               ),
-              SizedBox(height: 10,),
-
-              Card(
-                color: Colors.white,
-                elevation: 5,
-                child: ReusableChart(chartType:ChartType.pie,
-                  title: "Source",
-                  data: chartController.getPieChartData(),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            Row(
+              children: [
+                Expanded(
+                  child: GlassCard(
+                    child: ReusableChart(chartType:ChartType.pie,
+                      title: "Staff",
+                      data: chartController.getPieChartData(),
+                    ),
+                  ),
                 ),
-              )
-
-            ],
-          ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            GlassCard(
+              child: ReusableChart(chartType:ChartType.pie,
+                title: "Source Breakdown",
+                data: chartController.getPieChartData(),
+              ),
+            ),
+            
+            const SizedBox(height: 80), // Bottom padding
+          ],
         ),
       ),
     );

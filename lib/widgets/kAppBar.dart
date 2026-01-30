@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
-import "package:nexuscrm/widgets/kIconBtn.dart";
+import "package:nexuscrm/config/theme.dart";
+import 'dart:ui';
 
 class KAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -9,49 +10,37 @@ class KAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
-      centerTitle: false,
-      backgroundColor: Colors.white,
+      centerTitle: true,
+      backgroundColor: Colors.transparent, // Transparent for body background visibility
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.8),
+          border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.1)))
+        ),
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
+      ),
+      iconTheme: const IconThemeData(color: AppTheme.primaryColor),
       title: Text(
         title,
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 22,
-        ),
-        // flexibleSpace: Container(
-        //   padding: const EdgeInsets.only(left: 55),
-        //   width: double.infinity,
-        //   color: Colors.white,
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     crossAxisAlignment: CrossAxisAlignment.center,
-        //     children: [
-        //       // Center Title
-        //
-        //       ),
-        //       // Action Icons
-        //       Padding(
-        //         padding: const EdgeInsets.only(right: 16.0),
-        //         child: Row(
-        //           children: [
-        //             KIconBtn(
-        //               icons: Icons.light_mode,
-        //               onPressed: () {},
-        //             ),
-        //             const SizedBox(width: 8),
-        //             KIconBtn(
-        //               icons: Icons.notification_add_outlined,
-        //               onPressed: () {},
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ],
-        //   ),
+        style: AppTheme.heading2.copyWith(fontSize: 20),
       ),
+      actions: [
+        IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.notifications_outlined, color: AppTheme.textSecondary),
+        ),
+        const SizedBox(width: 8),
+      ],
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(85.0);
+  Size get preferredSize => const Size.fromHeight(60.0);
 }
+
+

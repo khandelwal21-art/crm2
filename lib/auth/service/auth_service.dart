@@ -18,6 +18,7 @@ class AuthService extends GetxService {
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
+        print(body);
         if (body['status'] == true && body['data'] != null) {
           return UserModel.fromJson(body['data']);
         }

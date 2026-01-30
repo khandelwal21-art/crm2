@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:nexuscrm/auth/bindings/auth_bindings.dart';
 import 'package:nexuscrm/auth/screens/login_screen.dart';
 import 'package:nexuscrm/bindings/autoCall_bindings.dart';
+import 'package:nexuscrm/bindings/it_staff_dashboard_bindings.dart';
 import 'package:nexuscrm/bindings/leave_bindings.dart';
 import 'package:nexuscrm/bindings/mark_attendance_bindings.dart';
 import 'package:nexuscrm/controller/myDrawer.dart';
@@ -12,9 +13,11 @@ import 'package:nexuscrm/screens/autodialer_widget.dart';
 import 'package:nexuscrm/screens/attendance_mark_screen.dart';
 import 'package:nexuscrm/screens/dash_screen.dart';
 import 'package:nexuscrm/screens/leave_screen.dart';
+import 'package:nexuscrm/screens/pages/dashboards/it_staff_dashboard_page.dart';
 
 import 'auth/controller/auth_controller.dart';
 import 'auth/service/auth_service.dart';
+import 'config/theme.dart';
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,10 +37,8 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'CRM',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-      ),
-
+      theme: AppTheme.lightTheme,
+      initialBinding: AutoCallBindings(),
       initialRoute: '/login',
       getPages: [
         GetPage(
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         GetPage(
           name: '/dashboard',
           page: () => DashScreen(),
+          binding: ItStaffDashboardBindings()
           // No binding—just the view
         ),
         GetPage(
@@ -73,6 +75,11 @@ class MyApp extends StatelessWidget {
           page: () => AutoDialerWidget(),
           binding: AutoCallBindings(),
         ),
+        // GetPage(name: '/itStaffDashBoard',
+        //     page:()=> ItStaffDashboardPage(),
+        //   binding: ItStaffDashboardBindings()
+        //
+        // )
 
         // ...other routes
       ],

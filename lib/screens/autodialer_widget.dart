@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:nexuscrm/auth/controller/auth_controller.dart';
 import 'package:nexuscrm/config/menu.dart';
@@ -9,8 +10,11 @@ import 'package:nexuscrm/widgets/kAppBar.dart';
 import 'package:nexuscrm/widgets/kDrawer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:phone_state/phone_state.dart';
+import 'package:nexuscrm/config/theme.dart';
 
 class AutoDialerWidget extends StatefulWidget {
+  const AutoDialerWidget({super.key});
+
   @override
   State<AutoDialerWidget> createState() => _AutoDialerWidgetState();
 }
@@ -202,7 +206,10 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                       ),
                       subtitle: Text(controller.numbers[currentIndex]['number'] ?? ""),
                       trailing: Switch(
-                        activeColor: Colors.green,
+                        activeTrackColor: Colors.green,
+
+                        // ✅ Inactive state (IMPORTANT)
+                        inactiveTrackColor: Colors.red.withOpacity(0.6),
                         value: dialogIsInterested,
                         onChanged: (value) {
                           dialogSetState(() {
@@ -225,30 +232,30 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                       ],
                     ),
                     SizedBox(height: 20),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          isExpanded: true,
-                          value: dialogSelectedOption,
-                          items: dropdownItems.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (String? value) {
-                            dialogSetState(() {
-                              dialogSelectedOption = value!;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
+                    // Container(
+                    //   padding: EdgeInsets.symmetric(horizontal: 12),
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(12),
+                    //     border: Border.all(color: Colors.grey[300]!),
+                    //   ),
+                    //   child: DropdownButtonHideUnderline(
+                    //     child: DropdownButton<String>(
+                    //       isExpanded: true,
+                    //       value: dialogSelectedOption,
+                    //       items: dropdownItems.map((String value) {
+                    //         return DropdownMenuItem<String>(
+                    //           value: value,
+                    //           child: Text(value),
+                    //         );
+                    //       }).toList(),
+                    //       onChanged: (String? value) {
+                    //         dialogSetState(() {
+                    //           dialogSelectedOption = value!;
+                    //         });
+                    //       },
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 );
               },
@@ -263,15 +270,29 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     padding: EdgeInsets.symmetric(vertical: 12),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      controller.numbers[currentIndex]['isInterested'] = dialogIsInterested;
-                      selectedOption = dialogSelectedOption;
-                    });
-                    Navigator.of(context).pop();
-                    dialogShown = false;
-                    if (!callInProgress && isDialing) {
-                      _moveToNextNumber();
+                  onPressed: () async {
+                    final currentLead = controller.numbers[currentIndex];
+                    final leadId = currentLead['id'];
+                    print(leadId);
+                    bool success = await controller.updateLead(
+                      leadId: leadId,
+                      isInterested: dialogIsInterested,
+                    );
+                    if (success) {
+                      setState(() {
+                        controller.numbers[currentIndex]['isInterested'] =
+                            dialogIsInterested;
+                      });
+                      Navigator.of(context).pop();
+                      dialogShown = false;
+                      Fluttertoast.showToast(msg: "lead updated successfully",textColor: Colors.white,backgroundColor: Colors.green);
+
+                      if (!callInProgress && isDialing) {
+                        _moveToNextNumber();
+                      }
+                    }
+                    else {
+                      Fluttertoast.showToast(msg: "Failed to update lead status",textColor: Colors.white,backgroundColor: Colors.red);
                     }
                   },
                   child: Text('Save & Continue', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -317,13 +338,13 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Calling':
-        return Colors.orange;
+        return AppTheme.secondaryColor; // Teal for active
       case 'Called':
-        return Colors.green;
+        return Colors.green; // Keep green for success
       case 'Failed':
-        return Colors.red;
+        return Colors.redAccent; // Red for errors
       default:
-        return Colors.grey;
+        return AppTheme.textSecondary.withOpacity(0.5); // Grey for idle
     }
   }
 
@@ -346,8 +367,8 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
       appBar: KAppBar(title: role?? " ",),
       drawer: KDrawer(menuItems: menu,),
       body: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
+        decoration: const BoxDecoration(
+          color: AppTheme.backgroundLight,
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
@@ -383,15 +404,11 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                 width: double.infinity,
                 padding: EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.indigo[700]!, Colors.indigo[500]!],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.indigo.withOpacity(0.3),
+                      color: AppTheme.primaryColor.withOpacity(0.3),
                       blurRadius: 15,
                       offset: Offset(0, 8),
                     ),
@@ -437,7 +454,7 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: isDialing ? Colors.greenAccent : Colors.orangeAccent,
+                                  color: isDialing ? AppTheme.secondaryColor : Colors.orangeAccent,
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -472,7 +489,7 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                             ),
                             child: Icon(
                               Icons.phone,
-                              color: Colors.indigo[700],
+                              color: AppTheme.primaryColor,
                               size: 24,
                             ),
                           ),
@@ -518,10 +535,10 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                 height: 56,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isDialing ? Colors.redAccent : Colors.orange[800],
+                    backgroundColor: isDialing ? Colors.redAccent : AppTheme.secondaryColor,
                     foregroundColor: Colors.white,
                     elevation: 4,
-                    shadowColor: (isDialing ? Colors.redAccent : Colors.orange).withOpacity(0.5),
+                    shadowColor: (isDialing ? Colors.redAccent : AppTheme.primaryColor).withOpacity(0.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -546,7 +563,7 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
               Text(
                 "UPCOMING CALLS",
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: AppTheme.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.1,
@@ -561,7 +578,7 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(color: Colors.indigo),
+                          CircularProgressIndicator(color: AppTheme.primaryColor),
                           SizedBox(height: 16),
                           Text("Fetching leads...", style: TextStyle(color: Colors.grey)),
                         ],
@@ -584,10 +601,10 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                       return AnimatedContainer(
                         duration: Duration(milliseconds: 300),
                         decoration: BoxDecoration(
-                          color: isCurrent ? Colors.indigo[50] : Colors.white,
+                          color: isCurrent ? AppTheme.primaryColor.withOpacity(0.05) : Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isCurrent ? Colors.indigo[200]! : Colors.transparent,
+                            color: isCurrent ? AppTheme.primaryColor.withOpacity(0.3) : Colors.transparent,
                             width: 2,
                           ),
                           boxShadow: [
@@ -617,12 +634,12 @@ class _AutoDialerWidgetState extends State<AutoDialerWidget> {
                             style: TextStyle(
                               fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
                               fontSize: 15,
-                              color: isCurrent ? Colors.indigo[900] : Colors.black87,
+                              color: isCurrent ? AppTheme.primaryColor : AppTheme.textPrimary,
                             ),
                           ),
                           subtitle: Text(
                             controller.numbers[index]['number'],
-                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                            style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
                           ),
                           trailing: Container(
                             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),

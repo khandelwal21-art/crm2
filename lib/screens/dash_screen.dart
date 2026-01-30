@@ -4,6 +4,7 @@ import 'package:nexuscrm/auth/controller/auth_controller.dart';
 import 'package:nexuscrm/config/menu.dart';
 import 'package:nexuscrm/screens/pages/dashboards/admin_dashboard-page.dart';
 import 'package:nexuscrm/screens/pages/dashboards/staff_dashboard_page.dart';
+import 'package:nexuscrm/screens/pages/dashboards/it_staff_dashboard_page.dart';
 import 'package:nexuscrm/widgets/kAppBar.dart';
 import 'package:nexuscrm/widgets/kDrawer.dart';
 
@@ -26,6 +27,9 @@ class DashScreen extends StatelessWidget {
         break;
       case "staff":
         body = StaffDashboardScreen();
+        break;
+      case "it_staff":
+        body = ItStaffDashboardPage();
         break;
       default:
         body = Center(child: Text('Unknown Role'));

@@ -9,12 +9,25 @@ class LeaveController extends GetxController{
   final _service=LeaveService();
   var leave=<LeaveModel>[].obs;
   var isLoading=false.obs;
-
+   final RxString selectedLeaveType="".obs;
   final formKey=GlobalKey<FormState>();
-  final TextEditingController leaveTypeController=TextEditingController();
   final TextEditingController reasonController=TextEditingController();
   final TextEditingController startDateController=TextEditingController();
   final TextEditingController endDateController=TextEditingController();
+
+  final List<String> leaveType=[
+    'Birthday Leave',
+    'Casual',
+    'Compensatory off',
+    'Earned Leave',
+     'Elite Leave',
+    'Leave Without Pay',
+    'Paternity Leave',
+    'Sick Leave'
+  ];
+
+
+
 
   @override onInit(){
     super.onInit();
@@ -36,7 +49,7 @@ class LeaveController extends GetxController{
 
   Future<void> addLeave()async{
     isLoading.value=true;
-    final result=await _service.addLeave(leaveTypeController.text,startDateController.text,endDateController.text,reasonController.text);
+    final result=await _service.addLeave(selectedLeaveType.value,startDateController.text,endDateController.text,reasonController.text);
     if(result){
        Get.back();
        Fluttertoast.showToast(
