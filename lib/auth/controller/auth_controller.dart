@@ -6,6 +6,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:nexuscrm/auth/service/auth_service.dart';
 import 'package:nexuscrm/models/user_model.dart';
 
+import '../../services/web_socket_service.dart';
+
 class AuthController extends GetxController{
 
   final AuthService authService =Get.find();
@@ -16,6 +18,20 @@ class AuthController extends GetxController{
   final TextEditingController passwordController=TextEditingController();
 
   var user = Rxn<UserModel>();
+
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    // 🔥 Load user from storage on app start
+    final savedUser = storage.read('user');
+    if (savedUser != null) {
+      user.value = UserModel.fromJson(savedUser);
+    }
+  }
+
+
 
   Future<void> login() async {
     isLoading.value=true;
@@ -30,14 +46,19 @@ class AuthController extends GetxController{
         user.value = result;
         //  Save token
         storage.write('token', result.token);
-        //  Navigate to dashboard
 
+        // Save user JSON
+        storage.write('user', result.toJson());
+        //save expiry time for token
+        final expiryDate=DateTime.now().add(Duration(days: 365));
+        storage.write('tokenExpiredDate', expiryDate.toIso8601String());
 
-// ✅ Navigate FIRST
+        // 🔥 CONNECT WEBSOCKET HERE
+        WebSocketService().connect();
+
         // Navigate immediately
-        Get.offNamed('/dashboard');
+        Get.offAllNamed('/dashboard');
 
-        // Use Toast instead of Snackbar
         Fluttertoast.showToast(
           msg: "Logged in successfully",
           toastLength: Toast.LENGTH_SHORT,
@@ -61,7 +82,23 @@ class AuthController extends GetxController{
         textColor: Colors.white,
       );
     }
+    finally{
+      isLoading.value=false;
+    }
   }
+
+  Future<void> logout() async {
+    // Disconnect WebSocket
+    WebSocketService().disconnect();
+
+    // Clear local data
+    user.value = null;
+    await storage.erase();
+
+    // Navigate to login
+    Get.offAllNamed('/login');
+  }
+
 
   String? get role=>user.value?.primaryRole;
 }

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:nexuscrm/models/dashBoardItem.dart';
 import 'package:nexuscrm/models/task_model.dart';
 import 'package:nexuscrm/services/it_staff_dashboard_service.dart';
+import 'package:nexuscrm/services/web_socket_service.dart';
 
+import '../models/dashboard_extension.dart';
 import '../models/project_model.dart';
 
 class ItStaffDashboardController extends GetxController{
@@ -18,9 +22,14 @@ class ItStaffDashboardController extends GetxController{
   ];
 
   final ItStaffDashboardService service=Get.find();
+  final TextEditingController searchController = TextEditingController();
   var isLoading = false.obs;
   var projects = <Project>[].obs;
+  var projectItems = <DashboardItem>[].obs; // <<<< NEW
+
   var recentProjects = <Project>[].obs;
+  var filteredProjects=<Project>[].obs;
+  var searchText="".obs;
 
   var tasks=<Task>[].obs;
   var pendingTasks=<Task>[].obs;
@@ -37,22 +46,44 @@ class ItStaffDashboardController extends GetxController{
     super.onInit();
     debugPrint("on Init called");
     _loadDashboard();
+    WebSocketService().connect();
+
+    //project notification
+    WebSocketService().projectStream.listen((projectData)async{
+      // 3️⃣ Listen for backend changes
+        debugPrint("🔁 Project changed → refreshing projects");
+        await getAssignedProject(); // API is source of truth
+      });
+
+    WebSocketService().tasksStream.listen((taskData) async{
+      debugPrint("receive tasks");
+      await getAllTasks();
+    });
+
   }
 
   Future<void> _loadDashboard() async {
     await getAssignedProject();
     await getAllTasks();
   }
+
+  // get all projects
   Future<void> getAssignedProject()async{
     try{
       isLoading.value=true;
       ProjectModel result =await service.getProjectsAssigned();
       totalProjects.value=result.count;
       projects.assignAll(result.results);
+      // Initialize filtered list
+      filteredProjects.value = result.results.toList();
+
+      projectItems.value =
+          result.results.map((e) => e.toDashboardItem()).toList();
+
+
       //getting recent projects
-      final list = projects.toList();
-      list.sort((a, b) => b.startDate.compareTo(a.startDate));
-      recentProjects.value= list.take(5).toList();
+    _updateRecentProjects();
+
     }catch(e){
        Fluttertoast.showToast(msg: e.toString());
     }finally{
@@ -62,6 +93,14 @@ class ItStaffDashboardController extends GetxController{
 
   }
 
+  void _updateRecentProjects() {
+    final list = (searchText.value.isEmpty ? projects : filteredProjects).toList();
+    list.sort((a, b) => b.startDate.compareTo(a.startDate));
+    recentProjects.value = list.take(5).toList();
+  }
+
+
+  //get all the tasks
   Future<void> getAllTasks()async{
     try{
       isLoading.value=true;
@@ -82,6 +121,23 @@ class ItStaffDashboardController extends GetxController{
     }
 
   }
+
+  void updateFilteredProject(String query){
+    searchText.value=query;
+    if(query.isEmpty){
+      filteredProjects.value = projects.toList();
+    }
+    else{
+      filteredProjects.value=projects.where((p)=>p.name.toLowerCase().contains(query.toLowerCase())).toList();
+    }
+
+    _updateRecentProjects();
+
+  }
+
+
+
+
 
   List<Project> getProjectList() => projects;
   List<Task> getTaskList() => tasks;

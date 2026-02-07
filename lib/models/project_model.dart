@@ -26,7 +26,7 @@ class Project {
   final String id;
   final String? createdByName;
   final bool isDeleted;
-  final String deletedAt;
+  final String? deletedAt;
   final String name;
   final String slug;
   final String description;
@@ -36,14 +36,14 @@ class Project {
   final bool isActive;
   final String createdAt;
   final String updatedAt;
-  final int deletedBy;
-  final int createdBy;
+  final int? deletedBy;
+  final int? createdBy;
 
   Project({
     required this.id,
     this.createdByName,
     required this.isDeleted,
-    required this.deletedAt,
+    this.deletedAt,
     required this.name,
     required this.slug,
     required this.description,
@@ -53,8 +53,8 @@ class Project {
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
-    required this.deletedBy,
-    required this.createdBy,
+    this.deletedBy,
+     this.createdBy,
   });
 
   factory Project.fromJson(Map<String, dynamic> json) {

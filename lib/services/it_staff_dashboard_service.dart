@@ -26,11 +26,11 @@ late final token =storage.read('token');
         return ProjectModel.fromJson(projects);
       }
       else{
-        throw Exception('Failed to fetch projects');
-      }
+        throw Exception(
+            'Failed to fetch projects: ${response.statusCode} ${response.reasonPhrase}');      }
 
     }catch(e){
-      throw Exception('Failed to fetch projects');
+      throw Exception('Failed to fetch projects $e');
 
 
     }

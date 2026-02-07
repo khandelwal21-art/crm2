@@ -20,7 +20,7 @@ class LeaveController extends GetxController{
     'Casual',
     'Compensatory off',
     'Earned Leave',
-     'Elite Leave',
+    'Elite Leave',
     'Leave Without Pay',
     'Paternity Leave',
     'Sick Leave'
@@ -58,7 +58,7 @@ class LeaveController extends GetxController{
          textColor: Colors.white,);
        getLeaves();
     }else{
-      Fluttertoast.showToast(msg: 'leave added successfully',
+      Fluttertoast.showToast(msg: result['error'],
         backgroundColor: Colors.red,
         textColor: Colors.white,);
     }

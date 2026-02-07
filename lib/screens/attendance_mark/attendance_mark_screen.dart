@@ -2,11 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nexuscrm/config/theme.dart';
+import 'package:nexuscrm/screens/attendance_mark/widgets/detail_row.dart';
+import 'package:nexuscrm/screens/attendance_mark/widgets/dialog_input.dart';
+import 'package:nexuscrm/screens/attendance_mark/widgets/info_card.dart';
+import 'package:nexuscrm/screens/attendance_mark/widgets/list_column.dart';
 import 'package:nexuscrm/widgets/glass_card.dart';
 import 'package:nexuscrm/widgets/kAppBar.dart';
 import 'package:nexuscrm/widgets/kDrawer.dart';
-import '../auth/controller/auth_controller.dart';
-import '../controller/mark_attendance_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../auth/controller/auth_controller.dart';
+import '../../controller/mark_attendance_controller.dart';
 
 class DashboardScreens extends StatefulWidget {
   const DashboardScreens({super.key});
@@ -103,7 +108,7 @@ class _DashboardScreenState extends State<DashboardScreens> with SingleTickerPro
                         // Animated Check-In Button
                         GestureDetector(
                           onTap: controller.isLoading.value ? null : () async {
-                             if (controller.isCheckedIn.value && authController.role=='super_user') {
+                             if (controller.isCheckedIn.value && authController.role?.toLowerCase()=='it_staff') {
                                 final info = await _showCheckOutDialog();
                                 if (info == null) return;
                                 if (info['projectName']!.trim().isEmpty || info['workDescription']!.trim().isEmpty) {
@@ -111,9 +116,28 @@ class _DashboardScreenState extends State<DashboardScreens> with SingleTickerPro
                                   return;
                                 }
                                 await controller.toggleCheckInOut(checkOutInfo: info);
-                              } else {
-                                await controller.toggleCheckInOut();
-                              }
+
+                                final mobile=authController.user.value?.mobile;
+                                final message = '''
+Checkout Details:
+Project Name: ${info['projectName']}
+Work Description: ${info['workDescription']}
+Task Time: ${info['taskTime']}
+Progress: ${info['workProgress']}
+''';
+
+
+
+                                final whatsappUrl = Uri.parse(
+                                  "https://wa.me/$mobile?text=${Uri.encodeComponent(message)}",
+                                );
+            if (await canLaunchUrl(whatsappUrl)) {
+            await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+            }
+            } else {
+            await controller.toggleCheckInOut();
+            }
+
                           },
                           child: ScaleTransition(
                             scale: _pulseAnimation,
@@ -170,9 +194,9 @@ class _DashboardScreenState extends State<DashboardScreens> with SingleTickerPro
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _InfoCard(label: "Check In", value: checkIn, icon: Icons.login_rounded, color: Colors.green),
-                            _InfoCard(label: "Check Out", value: checkOut, icon: Icons.logout_rounded, color: Colors.red),
-                            _InfoCard(label: "Working Hrs", value: totalHrs, icon: Icons.timer_rounded, color: Colors.orange),
+                            InfoCard(label: "Check In", value: checkIn, icon: Icons.login_rounded, color: Colors.green),
+                            InfoCard(label: "Check Out", value: checkOut, icon: Icons.logout_rounded, color: Colors.red),
+                            InfoCard(label: "Working Hrs", value: totalHrs, icon: Icons.timer_rounded, color: Colors.orange),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -244,9 +268,9 @@ class _DashboardScreenState extends State<DashboardScreens> with SingleTickerPro
                                     title: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        _ListColumn(label: "Date", value: item.date, isBold: true),
-                                        _ListColumn(label: "In", value: _formatTime(item.checkIn)),
-                                        _ListColumn(label: "Out", value: _formatTime(item.checkOut)),
+                                        ListColumn(label: "Date", value: item.date, isBold: true),
+                                        ListColumn(label: "In", value: _formatTime(item.checkIn)),
+                                        ListColumn(label: "Out", value: _formatTime(item.checkOut)),
                                       ],
                                     ),
                                     children: [
@@ -255,9 +279,9 @@ class _DashboardScreenState extends State<DashboardScreens> with SingleTickerPro
                                         child: Column(
                                           children: [
                                             Divider(color: Colors.grey.withOpacity(0.1)),
-                                            _DetailRow(label: "Status", value: item.status ?? '-'),
-                                            _DetailRow(label: "Late Mins", value: "${item.lateMinutes ?? 0}"),
-                                            _DetailRow(label: "Total Hrs", value: item.workingHours ?? '0:00'),
+                                            DetailRow(label: "Status", value: item.status ?? '-'),
+                                            DetailRow(label: "Late Mins", value: "${item.lateMinutes ?? 0}"),
+                                            DetailRow(label: "Total Hrs", value: item.workingHours ?? '0:00'),
                                           ],
                                         ),
                                       )
@@ -303,13 +327,14 @@ class _DashboardScreenState extends State<DashboardScreens> with SingleTickerPro
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-               _DialogInput(controller: projectController, label: "Project Name"),
+               DialogInput(controller: projectController, label: "Project Name"),
                const SizedBox(height: 12),
-               _DialogInput(controller: descriptionController, label: "Work Description", maxLines: 2),
+               DialogInput(controller: descriptionController, label: "Work Description", maxLines: 2),
                const SizedBox(height: 12),
-               _DialogInput(controller: taskTimeController, label: "Task Time (e.g. 2h)"),
+               DialogInput(controller: taskTimeController, label: "Task Time (e.g. 2h)"),
                const SizedBox(height: 12),
-               _DialogInput(controller: progressController, label: "Progress (%)", isNumber: true),
+               DialogInput(controller: progressController, label: "Progress (%)", isNumber: true),
+              const SizedBox(height: 12),
             ],
           ),
         ),
@@ -339,88 +364,8 @@ class _DashboardScreenState extends State<DashboardScreens> with SingleTickerPro
   }
 }
 
-class _InfoCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
 
-  const _InfoCard({required this.label, required this.value, required this.icon, required this.color});
 
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      width: 100,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(height: 6),
-          Text(value, style: AppTheme.heading2.copyWith(fontSize: 14)),
-          const SizedBox(height: 2),
-          Text(label, style: AppTheme.bodyText.copyWith(fontSize: 10)),
-        ],
-      ),
-    );
-  }
-}
 
-class _DialogInput extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final int maxLines;
-  final bool isNumber;
 
-  const _DialogInput({required this.controller, required this.label, this.maxLines=1, this.isNumber=false});
 
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-    );
-  }
-}
-
-class _ListColumn extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isBold;
-  const _ListColumn({required this.label, required this.value, this.isBold = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(label, style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
-        Text(value, style: TextStyle(fontSize: 14, fontWeight: isBold ? FontWeight.bold : FontWeight.w500, color: AppTheme.textPrimary)),
-      ],
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-  const _DetailRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(color: AppTheme.textSecondary)),
-          Text(value, style: TextStyle(fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-}

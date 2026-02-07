@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -10,10 +12,9 @@ import 'package:nexuscrm/bindings/mark_attendance_bindings.dart';
 import 'package:nexuscrm/controller/myDrawer.dart';
 import 'package:nexuscrm/screens/attendance_history_screen.dart';
 import 'package:nexuscrm/screens/autodialer_widget.dart';
-import 'package:nexuscrm/screens/attendance_mark_screen.dart';
+import 'package:nexuscrm/screens/attendance_mark/attendance_mark_screen.dart';
 import 'package:nexuscrm/screens/dash_screen.dart';
 import 'package:nexuscrm/screens/leave_screen.dart';
-import 'package:nexuscrm/screens/pages/dashboards/it_staff_dashboard_page.dart';
 
 import 'auth/controller/auth_controller.dart';
 import 'auth/service/auth_service.dart';
@@ -22,14 +23,32 @@ import 'config/theme.dart';
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-   Get.put(MyDrawer());
+  final storage = GetStorage();
+  final token = storage.read('token');
+
+  final initialRoute =
+  token != null && !isTokenExpired(token)
+      ? '/dashboard'
+      : '/login';
+  // register single instance only
   Get.put(AuthService(), permanent: true);
   Get.put(AuthController(), permanent: true);
-  runApp(MyApp());
+    Get.put(MyDrawer(), permanent: true);
+  runApp(MyApp(initialRoute: initialRoute));
+}
+
+//check if the token is expired or not
+bool isTokenExpired(String token) {
+  final expiry=GetStorage().read('tokenExpiredDate');
+  if(expiry==null) return true;
+
+  return DateTime.now().isAfter(DateTime.parse(expiry));
+
 }
 
 class MyApp extends StatelessWidget {
-   MyApp({super.key});
+  final String initialRoute;
+   const MyApp({super.key,required this.initialRoute});
 
   // This widget is the root of your application.
   @override
@@ -39,12 +58,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialBinding: AutoCallBindings(),
-      initialRoute: '/login',
+      initialRoute: initialRoute,
       getPages: [
         GetPage(
           name: '/login',
           page: () => LoginScreen(),
-          binding: AuthBindings(),
         ),
         GetPage(
           name: '/dashboard',

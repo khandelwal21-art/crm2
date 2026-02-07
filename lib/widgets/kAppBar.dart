@@ -1,6 +1,10 @@
 import "package:flutter/material.dart";
+import "package:get/get_core/src/get_main.dart";
+import "package:get/get_navigation/src/extension_navigation.dart";
 import "package:nexuscrm/config/theme.dart";
 import 'dart:ui';
+
+import "../screens/notification_page.dart";
 
 class KAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -31,7 +35,9 @@ class KAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Get.to(() => NotificationPage());
+          },
           icon: const Icon(Icons.notifications_outlined, color: AppTheme.textSecondary),
         ),
         const SizedBox(width: 8),

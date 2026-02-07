@@ -32,71 +32,105 @@ class KDrawer extends StatelessWidget {
         children: [
           // Custom Header with Gradient
           Container(
-            padding: const EdgeInsets.only(top: 80, bottom: 40, left: 24, right: 24),
+            padding: const EdgeInsets.only(top: 80,
+                bottom: 40,
+                left: 10,
+                right: 10),
             decoration: const BoxDecoration(
               gradient: AppTheme.primaryGradient,
               borderRadius: BorderRadius.only(topRight: Radius.circular(30)),
             ),
-            child: Row(
+            child: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white24, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppTheme.secondaryColor,
-                    child: Text(
-                      authController.user.value?.name?.isNotEmpty == true
-                          ? authController.user.value!.name![0].toUpperCase()
-                          : 'U',
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        authController.user.value?.name ?? 'User',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          authController.role?.toUpperCase() ?? 'STAFF',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 10,
-                            letterSpacing: 1,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white24, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
                           ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: AppTheme.secondaryColor,
+                        child:authController.user.value?.profileImage != null &&
+                            authController.user.value!.profileImage!.isNotEmpty
+                            ?
+                            ClipOval(
+                              child: Image.asset(authController.user.value!.profileImage!,width: 56,height: 56,fit: BoxFit.cover,)
+                            ):
+                        Text(
+                          authController.user.value?.name?.isNotEmpty == true
+                              ? authController.user.value!.name![0].toUpperCase()
+                              : 'U',
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            authController.user.value?.name ?? 'User',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            authController.user.value?.mobile ?? ' ',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              authController.role?.toUpperCase() ?? 'STAFF',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 10),
+                Text(
+                  authController.user.value?.username ?? '',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+
               ],
             ),
           ),
@@ -193,15 +227,69 @@ class KDrawer extends StatelessWidget {
           
           // Footer area (Logout or Version info could go here)
           Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Text(
-              "NexusCRM v1.0",
-              style: TextStyle(color: Colors.white24, fontSize: 12),
-              textAlign: TextAlign.center,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const Divider(color: Colors.white24),
+
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.white),
+                  title: const Text(
+                    "Logout",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () {
+                    Get.back(); // close drawer
+                    _showLogoutDialog(context);
+                  },
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  "Vrindavan",
+                  style: TextStyle(color: Colors.white60, fontSize: 18),
+                ),
+              ],
             ),
           ),
+
         ],
       ),
     );
   }
+}
+void _showLogoutDialog(BuildContext context) {
+  final AuthController authController = Get.find<AuthController>();
+
+  Get.dialog(
+    AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text("Logout"),
+      content: const Text("Are you sure you want to logout?"),
+      actions: [
+        TextButton(
+          onPressed: () => Get.back(),
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          onPressed: () {
+            Get.back();
+            authController.logout(); // 🔥 Disconnect WS + clear storage
+          },
+          child: const Text("Logout"),
+        ),
+      ],
+    ),
+  );
 }

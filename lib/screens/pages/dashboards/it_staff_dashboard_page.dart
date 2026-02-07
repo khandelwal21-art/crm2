@@ -68,7 +68,7 @@ class ItStaffDashboardPage extends StatelessWidget {
 
                           Get.to(() => ProjectScreen(
                             title: item['title'],
-                            listData: list,
+                            listData:controller.projectItems,
                           ));
                         }
 
@@ -79,7 +79,7 @@ class ItStaffDashboardPage extends StatelessWidget {
 
                           Get.to(() => ProjectScreen(
                             title: item['title'],
-                            listData: list,
+                            listData: list.obs,
                           ));
                         }
 
@@ -90,7 +90,7 @@ class ItStaffDashboardPage extends StatelessWidget {
 
                           Get.to(() => ProjectScreen(
                             title: item['title'],
-                            listData: list,
+                            listData: list.obs,
                           ));
                         }
 
@@ -101,7 +101,7 @@ class ItStaffDashboardPage extends StatelessWidget {
 
                           Get.to(() => ProjectScreen(
                             title: item['title'],
-                            listData: list,
+                            listData: list.obs,
                           ));
                         }
                       },
@@ -119,9 +119,13 @@ class ItStaffDashboardPage extends StatelessWidget {
                     child: SizedBox(
                       height: 50,
                       child: ModernTextField(
-                        controller: TextEditingController(),
+                        controller:controller.searchController,
                         hintText: "Search leads...",
                         prefixIcon: Icons.search,
+                        onChanged:(value){
+                          controller.updateFilteredProject(value);
+                        },
+                        
                       ),
                     ),
                   ),
@@ -150,12 +154,13 @@ class ItStaffDashboardPage extends StatelessWidget {
 
               const SizedBox(height: 24),
 
+              Text("Recent Projects",style:TextStyle(color: Colors.black45,fontWeight: FontWeight.w500,fontSize: 20),),
               // Recent Projects
               Obx(() {
-                final recent = controller.recentProjects;
+                final recent = controller.filteredProjects;
 
                 if (recent.isEmpty) {
-                  return const Text("No recent projects found");
+                  return Center(child: const Text("No recent projects found"));
                 }
 
                 return ListView.separated(

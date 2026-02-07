@@ -10,12 +10,13 @@ class ModernTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final Future<void> Function()? onTap;
   final bool readOnly;
-
+  final void Function(String)? onChanged;
   const ModernTextField({
     super.key,
     required this.controller,
     required this.hintText,
     this.prefixIcon,
+    this.onChanged,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.validator,
@@ -39,6 +40,7 @@ class ModernTextField extends StatelessWidget {
       ),
       child: TextFormField(
         readOnly: readOnly,
+        onChanged: onChanged,
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,

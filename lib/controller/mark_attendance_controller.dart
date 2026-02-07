@@ -54,8 +54,9 @@ class MarkAttendanceController extends GetxController
   }
 
   void _updateClock() {
-    final now = DateTime.now();
-    timeString.value = DateFormat('HH:mm:ss').format(now);
+
+    final now = DateTime.now().toUtc().add(Duration(hours: 5,minutes: 30));
+    timeString.value = DateFormat('h:mm:ss a').format(now);
     dateString.value = DateFormat('MMM dd yyyy, EEEE').format(now);
   }
 
